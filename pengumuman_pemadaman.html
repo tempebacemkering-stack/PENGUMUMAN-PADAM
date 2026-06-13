@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generator Pengumuman Pemadaman PLN</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f2f5;
+      color: #222;
+      min-height: 100vh;
+    }
+    header {
+      background: #003f7f;
+      color: white;
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    header .logo {
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: #ffd700;
+    }
+    header h1 {
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 32px auto;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 768px) {
+      .container { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      padding: 24px;
+    }
+    .card h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #003f7f;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e8ecf0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .form-group {
+      margin-bottom: 18px;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 6px;
+    }
+    input[type="text"], input[type="date"], input[type="time"], select {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1.5px solid #d0d7de;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #222;
+      background: #fafafa;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    input:focus, select:focus {
+      border-color: #003f7f;
+      background: white;
+    }
+    .time-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 8px;
+      align-items: center;
+    }
+    .time-row span {
+      text-align: center;
+      font-weight: 600;
+      color: #666;
+      font-size: 13px;
+    }
+    .penyulang-group {
+      margin-bottom: 16px;
+      border: 1.5px solid #e0e6ee;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .penyulang-header {
+      background: #003f7f;
+      color: white;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+    .penyulang-header:hover { background: #00529f; }
+    .penyulang-body {
+      padding: 8px;
+      background: #f8fafc;
+    }
+    .ruas-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 7px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .ruas-item:hover { background: #e8f0fb; }
+    .ruas-item input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      margin-top: 2px;
+      flex-shrink: 0;
+      cursor: pointer;
+      accent-color: #003f7f;
+    }
+    .ruas-label {
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    .ruas-name {
+      font-weight: 600;
+      color: #003f7f;
+      display: block;
+    }
+    .ruas-alamat {
+      color: #666;
+      font-size: 11px;
+      margin-top: 2px;
+    }
+    .select-all-btn {
+      background: none;
+      border: none;
+      color: #ffd700;
+      font-size: 11px;
+      cursor: pointer;
+      font-weight: 600;
+      padding: 0;
+    }
+    .select-all-btn:hover { text-decoration: underline; }
+    /* Preview */
+    .preview-area {
+      background: #fffef5;
+      border: 1.5px solid #e0d8a8;
+      border-radius: 8px;
+      padding: 20px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      word-break: break-word;
+      min-height: 300px;
+      color: #222;
+    }
+    .preview-placeholder {
+      color: #aaa;
+      font-style: italic;
+      font-family: inherit;
+    }
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+    button.action-btn {
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: background 0.15s, transform 0.1s;
+    }
+    button.action-btn:active { transform: scale(0.97); }
+    .btn-copy {
+      background: #003f7f;
+      color: white;
+    }
+    .btn-copy:hover { background: #00529f; }
+    .btn-reset {
+      background: #e8ecf0;
+      color: #444;
+    }
+    .btn-reset:hover { background: #d0d7de; }
+    .btn-wa {
+      background: #25d366;
+      color: white;
+    }
+    .btn-wa:hover { background: #1ebe5a; }
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #222;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      z-index: 999;
+    }
+    .toast.show { opacity: 1; }
+    .selected-count {
+      font-size: 11px;
+      color: #888;
+      margin-top: 6px;
+    }
+    .collapse-icon { font-size: 11px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">PLN</div>
+  <h1>Generator Pemberitahuan Pemadaman<br>UP3 Majalaya</h1>
+</header>
+
+<div class="container">
+  <!-- FORM -->
+  <div class="card">
+    <h2>📋 Input Data</h2>
+
+    <div class="form-group">
+      <label>Hari / Tanggal</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <select id="inp-hari">
+          <option value="">-- Pilih Hari --</option>
+          <option>Senin</option>
+          <option>Selasa</option>
+          <option>Rabu</option>
+          <option>Kamis</option>
+          <option>Jumat</option>
+          <option>Sabtu</option>
+          <option>Minggu</option>
+        </select>
+        <input type="date" id="inp-tanggal">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Waktu</label>
+      <div class="time-row">
+        <input type="time" id="inp-jam-mulai">
+        <span>s.d.</span>
+        <input type="time" id="inp-jam-selesai">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Wilayah Terdampak</label>
+      <div id="wilayah-container"></div>
+      <div class="selected-count" id="selected-count">0 ruas dipilih</div>
+    </div>
+  </div>
+
+  <!-- PREVIEW -->
+  <div class="card">
+    <h2>📄 Preview Pengumuman</h2>
+    <div class="preview-area" id="preview">
+      <span class="preview-placeholder">Preview pengumuman akan muncul di sini...</span>
+    </div>
+    <div class="btn-row">
+      <button class="action-btn btn-copy" onclick="copyText()">📋 Salin Teks</button>
+      <button class="action-btn btn-wa" onclick="copyWA()">💬 Format WhatsApp</button>
+      <button class="action-btn btn-reset" onclick="resetForm()">🔄 Reset</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===================== MASTER DATA =====================
+const masterData = [
+  {
+    penyulang: "CBBR",
+    ruas: [
+      {
+        nama: "PMT CBBR",
+        alamat: "KP CIBEUREUM, KP BOJONG, KP CUKANG HAUR, KP PATROL, KP SUKAWENING, KP CIKAHURIPAN, KP LIO, KP CUKANGGENTENG, KP CILAME, KP SALAMANJAH, KP NEGLASARI, KP SUKARAME, KP PANYOCOKAN, KP CULAMEGA, KP NGAMPRAH, KP CEBEK, KP LEMBUR PICUNG, KP SODONG, KP CISEGOK, KP PEUNDEUY, KP GUNUNG TIKUKUR, KP CIPARIGI, KP MARGA MUKTI, KP NENGKELAN, KP PUCANG RANGKAS, KP CIBURUY, KP NANGKEROK, KP BABAKAN, KP CISAAT, KP PANGAUBAN, KP MANDALA, KP BABAKAN KADU, KP BAYONGBONG, KP BATU KARUT, KP SUKAMAHI"
+      },
+      {
+        nama: "REC DPPA - LBS CIM",
+        alamat: "PR LINGGAHARA, KP PEUNDEUY, KP SUKARAME, KP BUNINAGARA, KP SINDANG MULYA, JL CEBEK, JL RAYA SADU, KP CEMPAKA, JL TERUSAN ALFATHU, KP SODONG, KP CIKAHURIPAN, KP CIBEUREUM, KP CIJAGRA, KP LEMBUR PICUNG, KP NARIKASIH, KP CILAMEGA, KP RANCASAMPIH, JL PASIR POGOR, KP BABAKAN CEBEK, KP CILAME TENGAH, KP PARAKAN PANJANG, KP PASIR KUPA, KP PASIR ANGIN, KP CAMPAKA, PT PALU GADA JAYA, PT. UNIQEU APPAREL INA, PT. FLOWER FACTORY INDONE, UMEN S/BUDY KARYA CV"
+      },
+      {
+        nama: "LBS CIM - SSO MCP",
+        alamat: "PT BUMI KADAKA, H MUHIDIN, IR MARCUS HARTANTO, KP BABAKAN GOMBONG, KP CILAME, KP CITAWA PASIRJAMBU, KP LEBAK MUNCANG, KP CUKANGGENTENG, KP BABAKAN SAKOLA, KP NEGLASARI, KP PATROL, KP CILEUNGSING, KP CANTILAN, KP BATU KARUT, KP SUKAJADI, KP HEUBEUL ISUK, KP CIBINGBIN, KP CILEUNGSING, PR BIRUNI ASRI BLOK B, KP BABAKAN HALTEU, KP SUNGAPAN, KP CULAMEGA, KP PASIR DONGKO, KP PATROL, KP BABAKAN CEBEK, KP CUKANGGENTENG, KP BATU KARUT, KP BATU SELA, KP PUCANG RANGKAS, KP GOMBONG MANDALA, KP ASTAKRAMA, KP GARUNG CANTILAN, KP RANCAGOONG"
+      },
+      {
+        nama: "SSO MCP - SSO RAO",
+        alamat: "JL CIKONENG, KP MARGAMUKTI, DS RAWABOGO CISONDARI, PR VILLA INDAH CIWIDEY, KP PASIR MALANG, KP CIKONENG, KP PASIR HUUNI, JL KP. CANGKORE, KP PASIR SULING, JL KP. PANGAUBAN, KP LIO, KP PANGAUBAN, KP CILASTRI, KP SINDANG SARI, JL PURI ASRI, JL PANYOCOKAN, JL PURI ELOK.PURI INDAH CWDY, PR CIWIDEY RESIDENCE II, KP CANGKORE, KP PANGKALAN, KP BOJONG KAWUNG, JL KP. SINDANGSARI LIO, KP KARAMAT, KP PASIR NANGKA, KP PASIR JAMBU N, KP CIKONENG, KP PASIR JAMBU, KP CITELU, JL KP. CIMAPAG, KP CIBITUNG, JL KP. PANGKALAN, JL KP. LAPANG BARAK, KP PANYOCOKAN, JL KP. KADAMETENG, JL KP.SUKAMAHI .3, KP CIBITUNG, JL KP. NGAMPRAH, KP MUARA, KP KARAMAT, JL KP. MEKARLAKSANA, KP PAMOYANAN, KP PASIR HONJE, KP BAYONGBONG MEKAR, KP NEGLA, KP CISEGOK, KP JOHAR 01, KP PASIR SALAM, KP BOJONG JAMBU, KP CISAAT, KP LEGOK KIARA, KP LAPANG, KP KOPENG, KP NENGKELAN, KP SUKAMANAH, KP CIHANTAP, KP BEBEDAHAN, KP PASIR ANGIN, KP NANGKEROK, KP PASIR WARU, KP CITISUK, KP HEGARMANAH, KP PASIR PARI, JL KP. SUKAMAHI, KP NAROGONG"
+      }
+    ]
+  },
+  {
+    penyulang: "SRNG",
+    ruas: [
+      {
+        nama: "PMT SRNG",
+        alamat: "KK GADING TUTUKA 2, KP CIBURIAL, KP CIPUTIH, KP CIKADU, KP BOJONG, KP SUKARAME, KP CIPANDAN, KP LEUWI MUNDING, KP SUKAMANAH, KK BUMI PRH KENCANA, KP CIWARU, KP PAJAGALAN, KP CIPETIR, KP CITALIKTIK, KP CEBEK, KP LEGOK KOLE, KP BANDAWA, KP SALAM, KP SOREANG KOLOT, KP DUKUH, KP PASIR KARAMAT, KP PASANTREN TIMUR, KP CIPANJANG, KP CILOA, KP BOBOJONG, KP SADU KALER, JL RAYA SOREANG, KK PASAR SOREANG, KP SANGKALI, KP SINDANG WARGI, KP ANDIR, KP PUNCAK MULYA, KP PASANTREN BARAT, KP NYALINDUNG, KP PASIR KERENCENG"
+      },
+      {
+        nama: "REC GATA - SSO SRGB",
+        alamat: "HANGGAR KEBERSIHAN, PROYEK AIR BERSIH, JAJAT SUDRAJAT, JAYADI, GURUH BANYUSAKTI, KK GADING TUTUKA 2, KP CIBURIAL, KP CIPETIR, KP CITALIKTIK, KP BANDAWA, KP CIWARU, KP SANGKALI, KP ANDIR, KP PASIR KERENCENG, KP CIBURIAL TIMUR, KP BABAKAN CIBOLANG, KP GADING TUTUKA II, PR GADING TUTUKA RESIDENCE SEKTOR KEMALA, PR GADING TUTUKA RESIDENCE, KP CIBURIAL BARAT"
+      },
+      {
+        nama: "SSO SRGB - KP SADU",
+        alamat: "KK GADING TUTUKA 2, KP CIBURIAL, KP CIPETIR, KP CITALIKTIK, KP BANDAWA, KP CIWARU, KP SANGKALI, KP ANDIR, KP PASIR KERENCENG, KP CIBURIAL TIMUR, KP BABAKAN CIBOLANG, KP GADING TUTUKA II, PR GADING TUTUKA RESIDENCE SEKTOR KEMALA, PR GADING TUTUKA RESIDENCE, KP CIBURIAL BARAT"
+      },
+      {
+        nama: "KP SADU - SSO LWM",
+        alamat: "KP CIKADU, KP SALAM, KP DUKUH, KP BOBOJONG, KP PUNCAK MULYA, KP PASIR MANYAR, KP CADAS NGAMPAR, KP PADA HURIP, KP BANGSAL BAHE, KP AWI LEGA, KP SUKAMANDI, KP SINDAY, KP CIGELENYE, KP SARILAMPING, KP PADAHURIP"
+      },
+      {
+        nama: "SSO LWM - UJUNG",
+        alamat: "KP CIKADU, KP SALAM, KP DUKUH, KP BOBOJONG, KP PUNCAK MULYA, KP PASIR MANYAR, KP CADAS NGAMPAR, KP PADA HURIP, KP BANGSAL BAHE, KP AWI LEGA, KP SUKAMANDI, KP SINDAY, KP CIGELENYE, KP SARILAMPING, KP PADAHURIP"
+      },
+      {
+        nama: "LBS SR - UJUNG",
+        alamat: "KP CIPUTIH, KP SUKARAME, KP LEGOK KOLE, KP PASIR KARAMAT, KP SUMUR BANDUNG, KP CIBIRU, KP CEBEK, KP SUKAMANAH, KP PASIR BATU, KP PASIR ASTANA, KP BABAKAN JALUR, KP CILAMEGA, KP PASIR HIRIS, KP SINDANG WARGI, KP BABAKAN CEBEK"
+      },
+      {
+        nama: "SSO MPRS 2 - LBS MPRS 1",
+        alamat: "KP NYALINDUNG, KP SINDANG WARGI, KP CIWARU, KP BANDAWA, KP SINDAY, KP CIPUTIH, KP CIPANGLER, KP PASIR HIRIS, KP CIBURIAL, KP BOBOJONG, KP PASIR LEUWI, KP CIWARU, JL CLUSTER ARTHA SOREANG LIVING BLOK B, KP LEMBUR MUNCANG"
+      }
+    ]
+  },
+  {
+    penyulang: "DBKI",
+    ruas: [
+      {
+        nama: "SSO KJG - KP KTP",
+        alamat: "KP KIARA EUNYEUH, KP SUKARAJIN, KP CIPINANG, KP GANDASARI, KP CIJERUK, KP SUKAPURA, KP BUNUT, KP SUKAHERANG, KP GIRIMEKAR, KP PASIR ANGKREK, KP MEKAR SARI, KP WATES, KP RANCAKEMBANG, KP KIARAENYEUH"
+      },
+      {
+        nama: "KP KTP - SSO IMI",
+        alamat: "KP LEUWEUNG KALENG, KP PANGAUBAN, KP PAMOYANAN, KP PASUNG, PR TAMAN FIRDAUS, KP SUKALAKSANA, KP PASIR IMPUN, KP CIGAJAH, KP CIGAJAH PESANTREN, KP PANGLAYUNG, JL HOLIS, JL SOETTA, JL SOETTA KOMPLEK TAMAN KOPO KATAPANG, JL WATES, KP WARUNG LOBAK"
+      },
+      {
+        nama: "SSO IMI - LBS PTG",
+        alamat: "KP JUNTI HILIR, KP CIKAMBUY TENGAH, KP KATAPANG, KP CIKAMBUY GIRANG, KP JUNTI GIRANG, KP CIHONJE, KP CIKAMBUY HILIR, KP CIJAGRA GIRANG, KP SUKAMULYA"
+      },
+      {
+        nama: "SSO DCIA - UJUNG",
+        alamat: "KP CIPONGPORANG, KP BARAJA, KP BOJONG NANGKA, KP PASUNG KALER, KP PASUNG TENGAH, KP PASUNG GIRANG, KP SUKAMENAK, KP BOJONG ASIH, KP SINDANG SARI, KP MUARA, JL KP.PASUNG, KP KATAPANG"
+      }
+    ]
+  },
+  {
+    penyulang: "CNTL",
+    ruas: [
+      {
+        nama: "PMT CNTL",
+        alamat: "KP CIPEDUNG, KP PAMEUNTASAN, KP BOJONG, KP SANEKE, KP GAJAH TENGAH, KP CIGALUMPIT, KP SUKALILAH, KP GAJAH ERETAN, KP MUARA CIWIDEY, JL SOREANG CIPATIK, KP GAJAH MEKAR, KP CANTILAN, KP BUNIBUANA, KP CIKUNDUL, KP SEKEBUNGUR, KP MUARA, KP GAJAH KANTOR, KP CISEAH, KP JATISARI, KP BOJONG KONENG, KP CIPARI, KP CIPEDUNG KOPO, KP LEGOK KONDANG, KP MEKARSARI, KP CIBODAS, KP BUNIJAYA, KP SITU MULYA, KP CIGADOG, KP LAMPING JATI, KP CIHERANG, KP SUKAHAJI, KP CIMAREME, KP SINAPEUL, KP CIBAYAWAK, KP BOJONG LAJA"
+      },
+      {
+        nama: "REC PDP - KP LNI",
+        alamat: "KP BOJONG, KP CIPEDUNG, KP PAMEUNTASAN, KP GAJAH TENGAH, KP GAJAH CIPEDUNG, KP GAJAH, KP SIRNAGALIH TENGAH, KP SIRNAGALIH TIN, KP BUNIBUANA, KP BUNISARI, KP SIRNAGALIH, KP GAJAH CIPARI"
+      },
+      {
+        nama: "KP LNI - SSO JLH",
+        alamat: "KP CIPEDUNG, KP CIGALUMPIT, KP MUARA KOPO, KP CIKUNDUL, KP MUARA, KP CIMAHI, KP CIBEGOL, KP LAMPING JATI, KP CIPEDUNG, JL SOREANG CIPATIK"
+      },
+      {
+        nama: "SSO DPNB - SSO LWS",
+        alamat: "KP SANEKE, KP CISEAH, KP MUARA CIWIDEY, KP PAMEUNTASAN, KP SEKEBUNGUR, KP KUBANG, KP SUKALILAH, KP MURCI, KP MUARA CIWIDEY MEKAR, KP CISEAH MEKAR, KP SUKAMULYA, KP CITAMBUR, KP MUARACIWIDEY, JL SANEKE 1, KP MUARA CIWEDEY"
+      },
+      {
+        nama: "LBS - LJT - SSO DKO",
+        alamat: "KP CIBAYAWAK, KP CIMAREME, KP BOJONG LAJA, KP JATI SARI, KP CIBAYAWAK BARAT, KP CIBAYAWAK TIMUR, KP CIBAYAWAK TENGAH, KP PASIR PANJANG, KP LEGOK KONDANG, KP LEGOK, KP SUKAHAJI, KP CIPEUNDEUY, KP CIMAHI"
+      }
+    ]
+  },
+  {
+    penyulang: "CPLH",
+    ruas: [
+      {
+        nama: "PMT CPLH",
+        alamat: "KP PASIR JAMBU, KP SUKARASA, KP BOJONG KONENG, KP LEMBUR TEGAL, KP SUKAGALIH, KK SOREANG INDAH, KP SADU TENGAH, KP SINDANG MULYA, KP BABAKAN TIGA, KP WARUNG, KP CIWIDEY TENGAH, KP CITALIKTIK, KP SUKARAME, KP CIGEMBRENG, KP CIBODAS, KP ANDIR, KP CINGCIN KOLOT, KP SADU KIDUL, KP PASAR KIDUL, KP CISEUPAN, KP CIMILIK, KP CIBAYONDAH, KP KABUYUTAN, KP PASANGGRAHAN, KP PATROL, KP CIRANJANG, KP CIMUNCANG, KP CILOA, KP KAUM KALER, JL RAYA SOREANG, JL RAYA CIWIDEY, JL RAYA GADING TUTUKA, KP SUKAMAJU, KP PASANTREN BARAT, KP PASANTREN TIMUR"
+      },
+      {
+        nama: "PMT CPLH - REC CTL",
+        alamat: "KP CINGCIN KOLOT, KP PATROL, KP SUKARAME, KP GANDASOLI KIDUL, KP CINGCIN KOLOT KIDUL, KP BOJONG, KP GANDASOLI, KP CINGCIN KOLOT, JL KP CINGCIN KOLOT, KP CINGCIN, KP CINGCIN GIRANG, KP CINGCIN TENGAH, KP CINGCIN BARAT"
+      },
+      {
+        nama: "REC CTL - KP SADU",
+        alamat: "KP BOJONG KONENG, KP CILOA, KP CIBOLANG, KP BABAKAN DESA, KP LEMBUR TEGAL, KP SUKARAME, KP CITALIKTIK, KP PANGIPASAN, KP KARANG ANYAR, KP BABAKAN BOJONG KONENG, JL RAYA SOREANG, KP SOREANG KOLOT, KP BABAKAN CIBOLANG, KP PASANTREN TIMUR, KP SUKAMAJU TIMUR"
+      },
+      {
+        nama: "KP SADU - SSO DCL",
+        alamat: "KP SADU TENGAH, KP SINDANG MULYA, KP TANEUH BEUREUM, KP CILOA, KP SADU KIDUL, KP SADU, KP LEGOK JAMBU, KP CIBEUREUM, KP BABAKAN NEGLASARI, KP SINDANG MULYA PANYIRAPAN, KP BABAKAN MULYASARI, KP CIPICUNG, JL RAYA SOREANG, KP SINDANGMULYA, KP CEBEK"
+      },
+      {
+        nama: "SSO DCL - LBS SS",
+        alamat: "KP CIBODAS, KP SUKAGALIH, KP CISEUPAN, KP NEGLASARI, KP SUKARASA, KP WARUNG, KP PASIR JAMBU, KP TENJOLAYA, KP PASIR WARU, KP CIWIDEY TENGAH, KP CIMUNCANG, KP JARINGAO, KP CIMALA, KP CIRANJANG"
+      },
+      {
+        nama: "LBS SRNB - LBS MAJU",
+        alamat: "KP SUKAMAJU TIMUR, KP CIGEMBRENG, KP CIBAYONDAH, KP LEGOK KEONG, KP PANGIPASAN, KP SINDANG MEKAR, KP SUKAMAJU BARAT, KP SEDA, KP PASANTREN BARAT, KP KAUM KALER, JL RAYA CIPATIK, KP CIGEMBRENG UTARA, KP CIJANTI"
+      }
+    ]
+  },
+  {
+    penyulang: "CWDY",
+    ruas: [
+      {
+        nama: "PMT CWDY",
+        alamat: "KK BUMI PRH KENCANA, KP PANYIRAPAN, KP JALUPANG, KP BOJONG SAYANG, KP CIKANCUNG, KP LEUWEUNG DATAR, KP PASIR KALIKI, KP HAUR DUNI, KP CIGIRI, KP CIPEUTEUY, KP CIBUBUAY, KP CIMONCE, KP KONENG SANTEN, KP BABAKAN SUKANAGARA, PR BANDA ASRI, KP PASIR PEUNDEUY, KP CIKUYA, KP PASIR SALAM, KP SINDANG PALAY, KP LEGOK KUNCI, KP CISEUPAN, KP KARAMAT AGUNG, KP SUKAJADI, KP KIARAPAYUNG, KP LEGOK NYENANG, KP LEGOK JEUNGJING, KP BOJONG SERO, KP LEGOK HEAS, KP CAMPEGO, KP PASIR ASTANA, KP SEUREUH BAU, KP SAYANG HEULANG, KP LEMBUR PICUNG, KP LEUWI NUTUG, KP CIHANJUANG"
+      },
+      {
+        nama: "SSO SIB - SSO BPKF",
+        alamat: "KP BOJONG SAYANG, KP JALUPANG, KP LEUWEUNG DATAR, KP HAUR DUNI, KP LEUWI NUTUG, KP BANDASARI, KP CIKIARA, KP SINARJAYA, KP CIKUYA, KP SINDANG PALAY, KP LEGOK NYENANG, KP KUKUN, KP PARKEN, KP KIARA"
+      },
+      {
+        nama: "SSO BPKF - SSO CGI",
+        alamat: "KP PANYIRAPAN, KP CIKANCUNG, KP PASIR KALIKI, KP CIGIRI, KP CIJEUNGJING, KP CISEUPAN, KP LEGOK KUNCI, KP KARAMAT AGUNG, KP KIARA PAYUNG"
+      },
+      {
+        nama: "LBS KTA LAMA - SSO SIB",
+        alamat: "KP SUKAMANAH, KP PARKEN, KP BUMI PARAHYANGAN KENCANA, JL PARADENTA REGENCY KAV, KP BUMI PRH KENCANA, JL PARKEN, KP NANGERANG"
+      }
+    ]
+  },
+  {
+    penyulang: "KATA",
+    ruas: [
+      {
+        nama: "REC KHS - KP KTP",
+        alamat: "KP GANDASARI, KP GANDASOLI, KP MULYASARI, KP WARUNGLOBAK, KP CIBISORO, KP CINGCIN PERMATA, KP GANDASARI INDAH, KP GANDASOLI TENGAH, KP CENTRAL BISNIS WARLOB, KP GANDASARI KIDUL, KP GANDASOLI KIDUL, KP MULYA SARI, KP SIMPANG BARU, JL SIMPANG BARU JL.CENDANA, KP CINGCIN KOLOT"
+      },
+      {
+        nama: "KP KTP - SSO IKA",
+        alamat: "KP LEBAK WANGI, KP CIPEER, KP KARANG ANYAR, KP TEGAL ILAT, KP LEMBUR TEGAL, KP BABAKAN CINGCIN, KP SEKARWANGI, KP BABAKAN, KP SIMPANG TENGAH, KP LEBAKWANGI, KP SEKAR WANGI, KP CIHURIP, KP SIRNA GALIH, KP SIMPANG WETAN"
+      },
+      {
+        nama: "SSO IKA - SSO JLH",
+        alamat: "KP BUNISARI, KP KOPO, KP CIKUPA, KP CITIRU, KP SUKAMANDI, KP PARUNGSERAB, KP PANYINDANGAN, KP PINGGIR WANGI, KP CIBOGOR, KP SUKARAME, KP CIKOPO, KP TEGAL CAANG, KP PANIISAN, KP SUKAMULYA, KP CIBUNTU"
+      }
+    ]
+  },
+  {
+    penyulang: "SSE",
+    ruas: [
+      {
+        nama: "GH HIRO - LBS CLIB / SSO CLI / UJUNG",
+        alamat: "KP BOJONG BUAH, KP CILAMPENI, KP PATROL, JL TERUSAN KOPO, KP BOJONG BUAH RT, KP BOJONG BUAH KEC KATAPANG, KP BOJONG BUAH KEC.CILAMPENI, KP BOJONG BUAH KEC KATAPANG NO, JL RAYA KOPO, JL RAYA SOREANG, JL RAYA KATAPANG, JL RAYA CILAMPENI, JL TERUSAN KOPO KM 11, JL KP.BOJONG BUAH, JL JL. CILAMPENI"
+      },
+      {
+        nama: "LBS CLIB - SSO LWS",
+        alamat: "KP MUARA CIWIDEY, KP CIJAGRA, KP MURCI, KP CILAMPENI, KP MUARACI WIDEY, KP MURCI BARAT, KP MURCI TIMUR, KP MURCI TENGAH, KP MURCI GIRANG, KP MURCI HILIR, KP MUARA CIWIDEY TIMUR, KP MUARA CIWIDEY BARAT, KP MUARA CIWIDEY UTARA, KP MUARA CIWIDEY SELATAN, KP CIJAGRA KAVLING"
+      },
+      {
+        nama: "SSO CLI - SSO SKB",
+        alamat: "KP CIKAMBUY HILIR, KP SUKASARI, KP BOJONG TANJUNG, KP BOJONG BUNGUR, KP CIKAMBUY, KP CIKAMBUY TENGAH, KP CIKAMBUY GIRANG, KP CIKAMBUY HILIR BARAT, KP CIKAMBUY TENGAH BARAT, KP CIKAMBUY HILIR TIMUR, KP CIKAMBUY TENGAH TIMUR, KP CIKAMBUY TENGAH SELATAN, KP CIKAMBUY TENGAH, KP SINDANG PALAY, KP BOJONGBUAH, JL CIKAMBUY HILIR"
+      }
+    ]
+  },
+  {
+    penyulang: "PARI",
+    ruas: [
+      {
+        nama: "PMT PARI",
+        alamat: "KP GAMBUNG, KP CISONDARI, KP PAPAK MANGGU, KP LEUWILIANG, KP SITUGEDE, KP CIAUL, KP CIBODAS, KP KACA KACA, KP TABRIK, KP SUKAJADI, KP CITIWU, KP NAGRAK, KP PASIR AWI, KP TENJOLAYA, KP TALAGA, KP PANGRAGAJIAN, KP SITULEUTIK, KP NYAMPAY, KP LENGKONG, KP HEGARMANAH, KP CISARUA, KP TOGE, KP CIPONGPOK, KP TONJONG, KP BABAKAN TANJUNG, KP CIBURIAL, KP LIUNG GUNUNG, KP GAMBUNG PANGKALAN, KP CIHANEUT, KP LANGKOB, KP BABAKAN, KP NEGLASARI, KP CIOLEOLE, KP BALONG, KP PAMUBUSAN"
+      },
+      {
+        nama: "PMT PARI - REC KKN",
+        alamat: "KP KENDENG, KP CAMARA, KP MANDALA, KP RANCABOLANG, KP PERK RANCABOLANG, KP LANGKOB, KP PATUHA, KP BANJAR, KP PERKEBUNAN RANCABOLANG, KP KENDENG KENARI, JL KP KENDENG, JL MANDALA, JL KP RANCABOLANG, PR KOMPLEK PATUHA, KP KENDEUNG"
+      },
+      {
+        nama: "LBS LKB - SSO TOE",
+        alamat: "KP KACA KACA, KP SUKAJADI, KP CITIWU, KP CIBODAS, KP LENGKONG, KP LANGKOB, KP BABAKAN TANJUNG, KP PAMANDIAN, KP PASIR KUPA, KP MUARA, KP RANCA CANGKUANG, KP KUBANG, KP WANASUKA, KP WASPADA, KP KACAKACA"
+      },
+      {
+        nama: "SSO TOE - SSO CSA",
+        alamat: "KP SITU GEDE, KP TABRIK, KP NAGRAK, KP PASIR AWI, KP TENJOLAYA, KP SUKAWENING, KP KARANG LEUTIK, KP CIPONGPOK, KP TONJONG, KP CIBURIAL, KP LIUNG GUNUNG"
+      },
+      {
+        nama: "SSO CSA - LBS TSD",
+        alamat: "KP CISONDARI, KP NEGLASARI, KP SURAJA, JL KP. CISONDARI, JL CISONDARI, KP PASIR JAMBU, KP SIRNAGALIH, KP KAVLING CISONDARI, JL KP. NEGLASARI"
+      },
+      {
+        nama: "SSO KGB - UJUNG",
+        alamat: "KP GAMBUNG, KP CIBODAS, KP SUKAGALIH, KP CISEUPAN, KP NEGLASARI, KP SUKARASA, KP WARUNG, KP PASIR JAMBU, KP TENJOLAYA, KP PASIR WARU, KP CIWIDEY TENGAH, KP CIMUNCANG, KP JARINGAO, KP CIMALA, KP SINDANG SARI"
+      }
+    ]
+  },
+  {
+    penyulang: "PANI",
+    ruas: [
+      {
+        nama: "PMT PANI - REC KBN",
+        alamat: "KP BABAKAN, KP PERK RANCABOLANG, KP KENDENG, KP BABAKAN RANCA BOLANG, KP BANJAR, KP SUKARESMI, KP RANCABOLANG, KP BBKN RANCA BOLANG, KP SUKARESMI RANCABALI, KP PERK RANCA BOLANG, KP BABAKAN RANCABOLANG, KP PERK RANCABOLANG PASIR JAMBU, KP BABAKAN SUGIHMUKTI, KP BABAKAN CIWIDEY, KP BABAKAN RANCA BOLANG SUGIHMUKTI"
+      },
+      {
+        nama: "REC KBN - SSO KCPN",
+        alamat: "KP RENGGANIS, KP CIPANGANTEN, KP SINTOK, KP PASIR WAAS, PR KOMP BRUSEL PATUHAWATEE, PR KOMP CILEUEUR PATUHAWATEE, KP KAWAH PUTIH, KP CILEUEUR, KP PATUHA WATE, KP PATUHA, KP CIBAGA, JL KP CIPANGANTEN, JL KP RENGGANIS, JL PERKEBUNAN TEH PATUHAWATTEE, KP PATENGAN"
+      },
+      {
+        nama: "SSO KCPN - SSO PES",
+        alamat: "KP CIBUNI ESTATE, KP RENGGANIS, PR CIBUNI ESTATE, KP CIPANGISIKAN, KP PATENGAN, KP CIPEDUNG, KP RANCABALI, KP PATENGANG, KP CIBADAK, KP CIPUSPA, KP KACA KACA, KP NEGLA, KP LENGKONG, KP RENGGANIS PATENGAN, JL RANCABALI CIWIDEY"
+      },
+      {
+        nama: "SSO PES - REC SNB",
+        alamat: "KP CIKARAMAS, KP PASIR MALANG, KP KAWUNGSARI, KP SUKAMULYA, KP CIBARENGKOK, KP CIKAROYA, KP CIKAREES, KP CIKADUT, KP CIBODAS, KP CIPARAY, KP SUKASENANG, KP SUKAWENING, KP CIKEMBANG, KP CIKALONG, KP CIKOLE"
+      },
+      {
+        nama: "REC SNB - REC CTBR",
+        alamat: "KP SUKAATI, KP SUKAMANDI, KP CIHIDEUNG, KP CIPELAH, KP SUKARESMI, KP SUKATUJUH, KP SUKANAGALIH, KP SUKARESMI GIRANG, KP SUKARESMI HILIR, KP KARANGSARI, KP KARANG ANYAR, KP BARU HINING, KP SEPERATA"
+      },
+      {
+        nama: "SSO RCI - SSO DAE",
+        alamat: "KP BARU TUNGGUL, KP BABAKAN JAMPANG, KP SINAPEUL, KP DATAR PUSPA, KP CIMANGGU, KP RANCABALI, KP LEGOK KONDANG, KP IRIGASI, KP MEKAR BARU, KP HANJUANG BEUREUM, KP WALINI, KP MEKARBARU, KP RANCAUPAS, KP CIBURIAL, KP KAWAH PUTIH"
+      },
+      {
+        nama: "LBS ALK - UJUNG",
+        alamat: "PR KOMPLEK PATUHAWATI, KP SUKASARI, KP CIBADAK, KP ALKATERIE, KP RANCABALI, KP CIPANGISIKAN, KP CIBUNI, KP CITEKO, KP CINTAWANA, KP RENGGANIS, KP LANGKOB, KP KACAKACA, KP PASANGGRAHAN, PR EMPLASEMEN PTH JAGABAYA, PR EMPLASEMEN PTH LAPANG"
+      },
+      {
+        nama: "REC RCBL - UJUNG",
+        alamat: "KP BARU TUNGGUL, KP BABAKAN JAMPANG, KP SINAPEUL, KP DATAR PUSPA, KP BARUTUNGGUL, KP LEGOK KONDANG, KP HANJUANG BEUREUM, KP IRIGASI, KP MEKAR BARU, KP RANCABALI, KP WALINI, KP MEKARBARU, KP RANCAUPAS, KP CIBURIAL"
+      }
+    ]
+  },
+  {
+    penyulang: "PARO",
+    ruas: [
+      {
+        nama: "PMT PARO",
+        alamat: "KP LEBAK MUNCANG, KP PANUNDAAN, KP PEER, KP SUKASARI, KP SIMPANG, KP CIBURIAL, KP CILASTARI, KP HAUR KONENG, KP SUKASARI MEKAR, KP KAUM KIDUL, KP PASIR LUHUR, KP CISUREN, KP CIKAREO LEGOK, KP CITALAHAB, KP WALURI, KP CIKEMBANG, KP TONJONG, KP DATAR PUSPA, KP CILOA, KP AWI SURAT, KP MAKBUL, KP SELONG, KP GOMBONG, KP LEBAK WANGI, KP CIPANAWA, KP BATU KASUR, KP LANGKOB, KP WARUNG PALU, KP NANJUNG, KP SINDANGSARI, KP CIKAREO, KP MUMUNGGANG, KP SUKAJADI, KP PASIR KEMIR, KP RANCAGEDE"
+      },
+      {
+        nama: "REC CAL - LBS SS",
+        alamat: "KP CILOA, KP PANUNDAAN, KP LANGKOB, KP CILASTARI, KP SUKASARI, KP CIBURIAL, KP PEER, KP KAUM KIDUL, KP GOMBONG, KP SALAM, KP CIASIN"
+      },
+      {
+        nama: "SSO CUK - LBS BGD",
+        alamat: "KP LEBAK MUNCANG, KP TONJONG, KP WALURI, KP RANCAGEDE, KP SUKAMANAH, KP AWI SURAT, KP BATU KASUR, KP BOJONG GADOG, KP CANTILAN, KP NANJUNG, KP PASIR KUDA, KP LEUWEUNG KOLE, KP MARGAMULYA, KP PASIR KEMIR, KP CIJAURA"
+      },
+      {
+        nama: "LBS BGD - LBS WRC",
+        alamat: "KP CISUREN, KP SELONG, KP SELONG GOMBONG, KP RAWA BOGO, KP CIBODAS, KP CISEUSEUP, KP TAMBAK RUYUNG, KP BABAKAN, KP LEGOK PARI, KP RANCA MEDAR, KP COBLONGAN, KP RANCAKIDUL, KP CI BODAS, KP TAMBAK GURUYUNG, KP SITU PANJANG"
+      },
+      {
+        nama: "LBS WRC - UJUNG",
+        alamat: "KP MARGA MULYA, KP CIDADAP, KP WARUNG CARINGIN, KP CIETER, KP CIKARET, KP CIKONENG, KP CISEUREUH, KP MEKARWANGI, KP CIPETIR, KP CIBUNTU, KP CIBOKLOK, KP CIRANGKONG, KP CILEMBER, KP BABAKAN CIMAHI, KP PATROL"
+      }
+    ]
+  },
+  {
+    penyulang: "SSH",
+    ruas: [
+      {
+        nama: "DAS - HOT",
+        alamat: "KP CIJAGRA, KP BOJONG SALAK, KP BARAJA, KP CIKUNDUL, KP LEBAK, KP KADU HEJO, KP CIKOKON, KP CIPARAY, KP CIKARANG, KP CIKAHURIPAN, KP SUKAMAJU, KP CICALENGKA, KP CIKAWAO, KP CIBODAS, KP CIKAPUNDUNG"
+      }
+    ]
+  },
+  {
+    penyulang: "WRLB",
+    ruas: [
+      {
+        nama: "PMT WRLB",
+        alamat: "KP JUNTI HILIR, KP LEUWEUNG KALENG, KP PANGAUBAN, KK GADING JUNTI ASRI, KP CIKAMBUY TENGAH, KP PAMOYANAN, KP KATAPANG, KP CIKAMBUY GIRANG, KP BABAKAN SONDARI, KP PASUNG, KP SINDANG PALAY, KP CIPONGPORANG, KP BARAJA, KP BOJONG NANGKA, KP WATES, JL RAYA KOPO KATAPANG, KP SINDANG SARI, KP SUKAMULYA, KP TIPAR, KP BARU, KP PASUNG KALER, KP CEURI, KP CIBANGBARA, JL RAYA SOREANG KOPO, KP CIKAMBUY, KP WARUNG LOBAK, KP BABAKAN CEDOK, KP NINGGAR, KP BABAKAN CEURI, KP CIJAGRA, KP SINDANGSARI, PR TAMAN KOPO KATAPANG, KP MEKARSARI, KP PASIR PANJANG, KK KATAPANG SQUARE"
+      }
+    ]
+  }
+];
+
+// ===================== BUILD FORM =====================
+function buildWilayahForm() {
+  const container = document.getElementById('wilayah-container');
+  container.innerHTML = '';
+
+  masterData.forEach((group, gi) => {
+    const div = document.createElement('div');
+    div.className = 'penyulang-group';
+
+    const header = document.createElement('div');
+    header.className = 'penyulang-header';
+    header.innerHTML = `
+      <span>Penyulang ${group.penyulang}</span>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <button class="select-all-btn" onclick="selectAll(${gi}, event)">Pilih Semua</button>
+        <span class="collapse-icon">▼</span>
+      </div>
+    `;
+    header.addEventListener('click', function(e) {
+      if (e.target.tagName === 'BUTTON') return;
+      body.style.display = body.style.display === 'none' ? 'block' : 'none';
+      header.querySelector('.collapse-icon').textContent = body.style.display === 'none' ? '▶' : '▼';
+    });
+
+    const body = document.createElement('div');
+    body.className = 'penyulang-body';
+
+    group.ruas.forEach((ruas, ri) => {
+      const item = document.createElement('label');
+      item.className = 'ruas-item';
+      item.innerHTML = `
+        <input type="checkbox" id="cb-${gi}-${ri}" data-gi="${gi}" data-ri="${ri}" onchange="updatePreview()">
+        <div class="ruas-label">
+          <span class="ruas-name">${ruas.nama}</span>
+          <span class="ruas-alamat">${ruas.alamat.substring(0, 80)}${ruas.alamat.length > 80 ? '...' : ''}</span>
+        </div>
+      `;
+      body.appendChild(item);
+    });
+
+    div.appendChild(header);
+    div.appendChild(body);
+    container.appendChild(div);
+  });
+}
+
+function selectAll(gi, e) {
+  e.stopPropagation();
+  const checkboxes = document.querySelectorAll(`[data-gi="${gi}"]`);
+  const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+  checkboxes.forEach(cb => cb.checked = !allChecked);
+  updatePreview();
+}
+
+// ===================== FORMAT DATE =====================
+function formatTanggal(dateStr) {
+  if (!dateStr) return '';
+  const [y, m, d] = dateStr.split('-');
+  const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  return `${parseInt(d)} ${months[parseInt(m)-1]} ${y}`;
+}
+
+function formatTime(timeStr) {
+  if (!timeStr) return '';
+  return timeStr.replace(':', '.') + ' WIB';
+}
+
+// ===================== UPDATE PREVIEW =====================
+function updatePreview() {
+  const hari = document.getElementById('inp-hari').value;
+  const tanggal = document.getElementById('inp-tanggal').value;
+  const jamMulai = document.getElementById('inp-jam-mulai').value;
+  const jamSelesai = document.getElementById('inp-jam-selesai').value;
+
+  // Collect selected areas
+  const checked = document.querySelectorAll('input[type="checkbox"]:checked');
+  const selectedCount = checked.length;
+  document.getElementById('selected-count').textContent = `${selectedCount} ruas dipilih`;
+
+  let wilayahList = [];
+  checked.forEach(cb => {
+    const gi = parseInt(cb.dataset.gi);
+    const ri = parseInt(cb.dataset.ri);
+    const ruas = masterData[gi].ruas[ri];
+    wilayahList.push(`${masterData[gi].penyulang} - ${ruas.nama}:\n${ruas.alamat}`);
+  });
+
+  const hariTanggal = [hari, formatTanggal(tanggal)].filter(Boolean).join(', ');
+  const waktu = [formatTime(jamMulai), formatTime(jamSelesai)].filter(Boolean).join(' s.d. ');
+
+  if (!hariTanggal && !waktu && selectedCount === 0) {
+    document.getElementById('preview').innerHTML = '<span class="preview-placeholder">Preview pengumuman akan muncul di sini...</span>';
+    return;
+  }
+
+  const wilayahText = wilayahList.length > 0
+    ? wilayahList.join('\n\n')
+    : '[Belum dipilih]';
+
+  const text =
+`*PENGUMUMAN*
+
+Sehubungan dengan adanya kendala teknis operasional pada pembangkit yang menyebabkan penurunan kapasitas suplai listrik, PLN melakukan manajemen beban secara terbatas di beberapa lokasi pada:
+
+*Hari/Tanggal :* ${hariTanggal || '[Belum diisi]'}
+*Waktu :* ${waktu || '[Belum diisi]'}
+*Wilayah :*
+${wilayahText}
+
+Langkah ini dilakukan untuk menjaga keandalan dan stabilitas sistem kelistrikan.
+
+PLN terus mengupayakan percepatan pemulihan kondisi operasi pembangkit dan menyampaikan permohonan maaf atas ketidaknyamanan yang terjadi.
+
+PLN UP3 MAJALAYA`;
+
+  document.getElementById('preview').textContent = text;
+}
+
+// ===================== ACTIONS =====================
+function getPreviewText() {
+  const el = document.getElementById('preview');
+  return el.textContent || el.innerText;
+}
+
+function copyText() {
+  const text = getPreviewText();
+  if (!text || text.includes('Preview pengumuman')) {
+    showToast('⚠️ Isi form terlebih dahulu');
+    return;
+  }
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('✅ Teks berhasil disalin!');
+  });
+}
+
+function copyWA() {
+  const text = getPreviewText();
+  if (!text || text.includes('Preview pengumuman')) {
+    showToast('⚠️ Isi form terlebih dahulu');
+    return;
+  }
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('✅ Format WhatsApp disalin!');
+  });
+}
+
+function resetForm() {
+  document.getElementById('inp-hari').value = '';
+  document.getElementById('inp-tanggal').value = '';
+  document.getElementById('inp-jam-mulai').value = '';
+  document.getElementById('inp-jam-selesai').value = '';
+  document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+  document.getElementById('selected-count').textContent = '0 ruas dipilih';
+  document.getElementById('preview').innerHTML = '<span class="preview-placeholder">Preview pengumuman akan muncul di sini...</span>';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ===================== EVENT LISTENERS =====================
+['inp-hari','inp-tanggal','inp-jam-mulai','inp-jam-selesai'].forEach(id => {
+  document.getElementById(id).addEventListener('change', updatePreview);
+  document.getElementById(id).addEventListener('input', updatePreview);
+});
+
+// ===================== INIT =====================
+buildWilayahForm();
+</script>
+</body>
+</html>
